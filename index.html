@@ -1,0 +1,82 @@
+<style>
+	body {
+		font-family: monospace;
+	}
+	img {
+		display: inline-block;
+		vertical-align: top;
+	}
+
+	#editor {
+		display: inline-block;
+		height: 100%;
+		width: 500px;
+		vertical-align: top;
+	}
+
+	#error {
+		display: inline-block;
+		white-space: pre-wrap;
+		color: red;
+		width: 700px;
+	}
+</style>
+<img id="video" />
+<div id="editor">function minupulate(mat){ }
+
+</div>
+<div id="error"></div>
+<script src="ace/ace.js" type="text/javascript" charset="utf-8"></script>
+<script>
+	const updateCode = (ws, editor) => {
+		ws.send(`(${editor.getValue()})`);
+	}
+	const setupEditor = (ws) => {
+		const editor = ace.edit("editor");
+		editor.setTheme("ace/theme/monokai");
+		editor.getSession().setMode("ace/mode/javascript");
+		editor.getSession().on('change', function (e) {
+			localStorage["opencv-test.lastCode"] = editor.getValue();
+		});
+
+		editor.commands.addCommand({
+			name: 'setManipulationFunction',
+			bindKey: { win: 'Ctrl-Enter', mac: 'Command-Enter' },
+			exec: function (editor) {
+				updateCode(ws, editor);
+			}
+		});
+		if (localStorage["opencv-test.lastCode"]) {
+			editor.setValue(localStorage["opencv-test.lastCode"]);
+			updateCode(ws, editor);
+		}
+	}
+	const image = document.getElementById("video");
+	const error = document.getElementById("error");
+	let x = 0;
+	const ws = new WebSocket("ws://localhost:9090");
+	ws.onopen = () => {
+		setupEditor(ws);
+	}
+	ws.onmessage = (e) => {
+		if ("string" === typeof e.data) {
+			const { type, data } = JSON.parse(e.data);
+			switch (type) {
+				case "error":
+					if (data !== error.innerText) {
+						error.innerText = data;
+					}
+					break;
+				case "log":
+					console.log(...data);
+					break;
+			}
+			return;
+		}
+		error.innerText = "";
+		image.src = URL.createObjectURL(e.data);
+	};
+
+
+
+</script>

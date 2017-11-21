@@ -1,0 +1,13 @@
+{
+  "name": "node-opencv-playground",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {},
+  "author": "idobh2",
+  "license": "MIT",
+  "dependencies": {
+    "opencv": "^6.0.0",
+    "ws": "^3.3.1"
+  }
+}
