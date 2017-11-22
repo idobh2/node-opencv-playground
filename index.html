@@ -70,6 +70,10 @@
 				case "log":
 					console.log(...data);
 					break;
+				case "execute":
+					const { fn, args = [] } = data;
+					eval(fn)(...args);
+					break;
 			}
 			return;
 		}
